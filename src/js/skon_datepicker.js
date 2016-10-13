@@ -21,8 +21,8 @@ sk_datePicker.prototype.monthDisplayArray = null;
 sk_datePicker.prototype.currentMonthArray = null;
 
 //click trigger
-sk_datePicker.prototype.yearArrowLeft = null;
-sk_datePicker.prototype.yearArrowRight = null;
+sk_datePicker.prototype.arrowPrevious = null;
+sk_datePicker.prototype.arrowNext = null;
 sk_datePicker.prototype.monthArrowLeft = null;
 sk_datePicker.prototype.monthArrowRight = null;
 sk_datePicker.prototype.weekdayItem = null;
@@ -64,11 +64,16 @@ function sk_datePicker(pTarget, config) {
         weekFormat: "Sf",
         lang: "en",
         controller: "s1",
+        dataList : "",
         tableStyle: {
 
         },
         onChangeMonth: function(pTarget) {
-            console.log("change month or year");
+            //console.log("change month or year");
+        },
+        onChangeDate: function(pTarget)
+        {
+            //console.log("change date");
         }
     };
 
@@ -76,6 +81,8 @@ function sk_datePicker(pTarget, config) {
 
     _self.init();
 }
+
+sk_datePicker.prototype.listInfo = null; 
 
 sk_datePicker.prototype.init = function() {
     var _self = this;
@@ -85,8 +92,25 @@ sk_datePicker.prototype.init = function() {
     //init Date Array
     _self.setInitDateArray();
 
+    //dataPicker with listing case
+    if(_self.settings.dataList !== ""){
+
+        var _path = _self.settings.dataList;
+
+        _self.listInfo = {};
+
+        _self.listInfo.listStartDate = _path.basicInfo.startDate;
+        _self.listInfo.listEndDate = _path.basicInfo.endDate;
+        _self.listInfo.isRangeBound = _path.basicInfo.isRangeBound;
+        _self.listInfo.listArray = _path.items;
+        
+        //console.log(_self.listInfo.listArray[0].date);
+    }
+
     //selectorControl ( Customize S1 )
     _self.createSelectController();
+
+    _self.listShowHideFn();
 
     //createTable
     _self.createTable();
@@ -94,6 +118,35 @@ sk_datePicker.prototype.init = function() {
     //add Date into cell
     _self.buildCurrentMonthArray();
 
+};
+
+sk_datePicker.prototype.listShowHideFn = function() {
+    var _self = this;
+
+    _self.listInfo.listStartDate = moment(_self.listInfo.listStartDate, "DD-MM-YYYY");
+    _self.listInfo.listEndDate = moment(_self.listInfo.listEndDate, "DD-MM-YYYY");
+
+    var _startYear = _self.listInfo.listStartDate.year();
+    var _startMonth = _self.listInfo.listStartDate.month();
+
+    var _endYear = _self.listInfo.listEndDate.year();
+    var _endMonth = _self.listInfo.listEndDate.month();
+
+    if(_self.listInfo.isRangeBound)
+    {
+        _self.arrowPrevious.show();
+        _self.arrowNext.show();
+
+        if((_self.currentYear === _endYear)&&(_self.currentMonth === _endMonth))
+        {
+            _self.arrowNext.hide();
+        }
+
+        if((_self.currentYear === _startYear)&&(_self.currentMonth === _startMonth))
+        {
+            _self.arrowPrevious.hide();
+        }
+    }
 };
 
 sk_datePicker.prototype.createSelectController = function() {
@@ -105,13 +158,8 @@ sk_datePicker.prototype.createSelectController = function() {
 
     _self.sk_selectorWrapper.append(createSelectorHTML());
 
-    //console.log(_self.currentMonth, _self.currentYear, _self.monthDisplayArray);
-
-    _self.yearArrowLeft = $('.selectorItem.year .datepickerArrow.left', _self.target);
-    _self.yearArrowRight = $('.selectorItem.year .datepickerArrow.right', _self.target);
-
-    _self.monthArrowLeft = $('.selectorItem.month .datepickerArrow.left', _self.target);
-    _self.monthArrowRight = $('.selectorItem.month .datepickerArrow.right', _self.target);
+    _self.arrowPrevious = $('.selectorItem .datepickerArrow.left', _self.target);
+    _self.arrowNext = $('.selectorItem .datepickerArrow.right', _self.target);
 
     bindSelectorArrow();
 
@@ -120,51 +168,53 @@ sk_datePicker.prototype.createSelectController = function() {
 
         _html = '';
 
-        _html += '<div class="monthSelectWrapper coGrid-1-2 np">';
-        _html += '	<div class="selectorItem month">';
-        _html += '		<a href="javascript:void(0);" class="datepickerArrow left">';
-        _html += '			<span class="ghost"></span><span class="icon-arrowRight"></span>';
-        _html += '		</a><span class="displayValue">' + _self.monthDisplayArray[_self.currentMonth];
-        _html += '		</span><a href="javascript:void(0);" class="datepickerArrow right">';
-        _html += '			<span class="ghost"></span><span class="icon-arrowLeft"></span>';
-        _html += '		</a>';
-        _html += '	</div>';
-        _html += '</div><div class="yearSelectWrapper coGrid-1-2 np">';
-        _html += '	<div class="selectorItem year">';
-        _html += '		<a href="javascript:void(0);" class="datepickerArrow left">';
-        _html += '			<span class="ghost"></span><span class="icon-arrowRight"></span>';
-        _html += '		</a><span class="displayValue">' + _self.currentYear;
-        _html += '		</span><a href="javascript:void(0);" class="datepickerArrow right">';
-        _html += '			<span class="ghost"></span><span class="icon-arrowLeft"></span>';
-        _html += '		</a>';
-        _html += '	</div>';
-
+        _html += '<div class="monthSelectWrapper">';
+        _html += '   <div class="selectorItem">';
+        _html += '       <a href="javascript:void(0);" class="datepickerArrow left">';
+        _html += '           <span class="ghost"></span><span class="icon-arrowRight"></span>';
+        _html += '       </a><span class="displayValue"><span class="month">'+_self.monthDisplayArray[_self.currentMonth]+'</span><span class="year"> '+_self.currentYear+'</span>';
+        _html += '       </span><a href="javascript:void(0);" class="datepickerArrow right">';
+        _html += '           <span class="ghost"></span><span class="icon-arrowLeft"></span>';
+        _html += '       </a>';
+        _html += '   </div>';
+        _html += '</div>';
 
         return _html;
     }
 
     function bindSelectorArrow() {
-        _self.yearArrowRight.on('click', function() {
-            _self.currentYear++;
-            $('.selectorItem.year', _self.target).find('.displayValue').html(_self.currentYear);
-            logCurrentData();
-        });
 
-        _self.yearArrowLeft.on('click', function() {
-            _self.currentYear--;
-            $('.selectorItem.year', _self.target).find('.displayValue').html(_self.currentYear);
-            logCurrentData();
-        });
+        _self.arrowNext.on('click', function(){
 
-        _self.monthArrowRight.on('click', function() {
             _self.currentMonth = (_self.currentMonth + 1) % 12;
-            $('.selectorItem.month', _self.target).find('.displayValue').html(_self.monthDisplayArray[_self.currentMonth]);
+
+            if(_self.currentMonth === 0)
+            {
+                _self.currentYear++;
+            }
+
+            _self.listShowHideFn();
+
+            $('.displayValue', _self.target)
+                .html('<span class="month">'+_self.monthDisplayArray[_self.currentMonth]+'</span><span class="year"> '+_self.currentYear+'</span>');
+
             logCurrentData();
         });
 
-        _self.monthArrowLeft.on('click', function() {
+        _self.arrowPrevious.on('click', function(){
+
             _self.currentMonth = (_self.currentMonth - 1 < 0) ? _self.currentMonth = 11 : _self.currentMonth - 1;
-            $('.selectorItem.month', _self.target).find('.displayValue').html(_self.monthDisplayArray[_self.currentMonth]);
+
+            if(_self.currentMonth === 11)
+            {
+                _self.currentYear--;
+            }
+
+            _self.listShowHideFn();
+
+            $('.displayValue', _self.target)
+                .html('<span class="month">'+_self.monthDisplayArray[_self.currentMonth]+'</span><span class="year"> '+_self.currentYear+'</span>');
+
             logCurrentData();
         });
     }
@@ -173,6 +223,10 @@ sk_datePicker.prototype.createSelectController = function() {
         // unbind date
         _self.weekdayItem.off('click');
 
+        $('.displayDateText', _self.target).remove();
+        $('.weekdayItem', _self.target).removeClass('selected');
+        _self.selectedDate = null;
+
         _self.buildCurrentMonthArray();
     }
 };
@@ -180,7 +234,6 @@ sk_datePicker.prototype.createSelectController = function() {
 sk_datePicker.prototype.setInitDateArray = function() {
     var _self = this;
 
-    //default Today
     if (_self.settings.currentDate == "today") {
         _self.initDate = new Date();
 
@@ -235,7 +288,7 @@ sk_datePicker.prototype.buildCurrentMonthArray = function() {
         _self.currentMonthArray.push(_tempObj);
     }
 
-    console.log(_self.currentMonthArray);
+    //console.log(_self.currentMonthArray);
 
     _self.addDateItem();
 
@@ -245,6 +298,8 @@ sk_datePicker.prototype.buildCurrentMonthArray = function() {
         _self.settings.onChangeDate(_self);
     }
 };
+
+sk_datePicker.prototype.selectedDate = null;
 
 sk_datePicker.prototype.addDateItem = function() {
     var _self = this;
@@ -259,21 +314,43 @@ sk_datePicker.prototype.addDateItem = function() {
         }
 
         $('.weekdayItem', _self.target).off('click').on('click', function() {
-            if ($(this).hasClass('withEvent')) {
+
+            if(($(this).hasClass('wEvent'))&&(!$(this).hasClass('selected')))
+            {
                 var _date = $(this).data('date');
 
+                //console.log(_date);
+
+                //Load Ajax Or one list
                 $('.weekdayItem', _self.target).removeClass('selected');
+                
                 $(this).addClass('selected');
 
+                //console.log(_self.listInfo.listArray[0][_date].time);
 
-                if (typeof _self.ajaxRevisedArray[0][_date] != "undefined") {
-                    _self.selectedDate = _date;
+                $('.displayDateText', _self.target).remove();
 
-                    if (_self.currentType == "whatsOn") {
-                        _self.destroyDisplayContentWO();
-                        _self.initWhatsOn(_self.ajaxRevisedArray[0][_date]);
-                    }
+                var _htmlContent = null;
+                _htmlContent = '';
+
+                _htmlContent += '<div class="displayDateText">';
+
+                for(var _i=0; _i<_self.listInfo.listArray[0][_date].time.length; _i++ )
+                {
+                    _htmlContent += '<a href="#" class="timeItem"><span class="text">'+_self.listInfo.listArray[0][_date].time[_i]+'</span></a>';
                 }
+
+                _htmlContent += '</div>';
+
+                $(_htmlContent).insertAfter($('.sk_datepickTable', _self.target));
+
+                _self.selectedDate = _date;
+
+                $('.timeItem', _self.target).off('click').on('click', function()
+                {
+                    var _time = $(this).find('.text').html();
+                    console.log(_date, _time);
+                });
             }
         });
     }
@@ -284,6 +361,7 @@ sk_datePicker.prototype.addDateItem = function() {
         //clear
         $('.dateRow td', _self.target).find('.item').html('');
         $('.weekdayItem', _self.target).removeClass('current');
+        $('.weekdayItem', _self.target).removeClass('wEvent');
         $('.weekdayItem', _self.target).removeClass('selected');
         $('.weekdayItem', _self.target).attr('data-date', '');
 
@@ -298,6 +376,16 @@ sk_datePicker.prototype.addDateItem = function() {
             if (_string == _currentDate) {
                 $('.weekdayItem[data-date="' + _currentDate + '"]', _self.target).addClass('current');
             }
+
+            //var len = $.map(_self.listInfo.listArray[0], function(n, i) { return i; }).length;
+            //special case
+            $.each(_self.listInfo.listArray[0], function(_k, _el)
+            {
+                if(_k === _string)
+                {
+                    $('.weekdayItem[data-date="' + _k + '"]', _self.target).addClass('wEvent');
+                }
+            });
         }
 
         $('.weekdayItem[data-date="' + _self.selectedDate + '"]', _self.target).addClass('selected');
@@ -312,159 +400,6 @@ sk_datePicker.prototype.returnDateFormat = function(pArray) {
     var _year = pArray[2];
 
     return _day + '-' + _month + '-' + _year;
-};
-
-sk_datePicker.prototype.postAjaxContent = function(pData, pType) {
-    var _self = this;
-
-    _self.ajaxContentArray = []; //clear in destroy
-    _self.ajaxContentArray = pData;
-    // console.log(pData);
-    _self.currentType = pType;
-
-    var _mStartDate = moment([_self.currentYear, _self.currentMonth, 1]);
-    var _mEndDate = moment([_self.currentYear, _self.currentMonth + 1, 1]).subtract(1, 'd');
-
-    $('.eventBorder', _self.target).remove();
-    $('.weekdayItem', _self.target).removeClass('withEvent');
-    $('.weekdayItem', _self.target).removeClass('firstDay');
-
-    $.each(_self.ajaxContentArray[0].items, function(_i, _el) {
-
-        _el.startDate = moment(_el.startDate, "DD-MM-YYYY");
-        _el.endDate = moment(_el.endDate, "DD-MM-YYYY");
-    });
-
-    var _currentMonth = (_self.currentMonth + 1 < 10) ? '0' + (_self.currentMonth + 1) : _self.currentMonth + 1;
-    var _getMonthYear = _currentMonth + '-' + _self.currentYear;
-
-    var _length = moment(_getMonthYear, "MM-YYYY").daysInMonth();
-
-    //check Every day in the month
-    var _tempObj = {};
-
-    for (_i = 1; _i <= _length; _i++) {
-        var _currentDay = (_i < 10) ? '0' + _i : _i;
-        var _currentDate = moment(_currentDay + '-' + _getMonthYear, "DD-MM-YYYY");
-
-        var _dateName = _currentDay + '-' + _getMonthYear;
-
-        _tempObj[_dateName] = [];
-
-        $.each(_self.ajaxContentArray[0].items, function(_i, _el) {
-            var _start = _el.startDate._i;
-            _start = moment(_start, "DD-MM-YYYY").subtract(1, 'days');
-
-            var _end = _el.endDate._i;
-            _end = moment(_end, "DD-MM-YYYY").add(1, 'days');
-
-            if (moment(_currentDate).isBetween(_start, _end)) {
-                var _itemObj = {};
-
-                _itemObj.id = _el.id;
-                _itemObj.img = _el.img;
-                _itemObj.alt = _el.alt;
-                _itemObj.title = _el.title;
-                _itemObj.startDate = _el.startDate;
-                _itemObj.endDate = _el.endDate;
-                _itemObj.tag = _el.tag;
-                _itemObj.link = _el.link;
-                _itemObj.message = _el.message;
-                _itemObj.displayDateFormat = dateFormatConvert(_itemObj.startDate, _itemObj.endDate);
-                _itemObj.firstChar = _el.message.charAt(0);
-                _itemObj.updatedMessage = _el.message.slice(1);
-
-                //console.log(_currentDate._i, _el.startDate._i);
-
-
-                if (_currentDate._i == _el.startDate._i) {
-                    _itemObj.isFirstDay = true;
-                    $('.weekdayItem[data-date="' + _currentDate._i + '"]', _self.target).addClass('firstDay');
-
-                } else {
-                    _itemObj.isFirstDay = false;
-                }
-
-                $('.weekdayItem[data-date="' + _currentDate._i + '"]', _self.target).addClass('withEvent');
-
-                _tempObj[_dateName].push(_itemObj);
-            }
-        });
-
-        //console.log(_tempObj);
-
-        _self.ajaxRevisedArray = []; //clear in destroy
-        _self.ajaxRevisedArray.push(_tempObj);
-    }
-
-    for (var _i in _self.ajaxRevisedArray[0]) {
-        if (_self.ajaxRevisedArray[0][_i].length > 0) {
-            $('<span class="eventBorder"></span>').insertBefore($('.weekdayItem[data-date="' + _i + '"]', _self.target).find('.cover'));
-        }
-    }
-
-    if (_self.isInitCall) {
-        //check init date, do it once only
-        if (_self.ajaxRevisedArray[0][_self.initDateObj.format].length > 0) {
-            $('.weekdayItem[data-date="' + _self.initDateObj.format + '"]', _self.target).addClass('selected');
-
-            _self.selectedDate = _self.initDateObj.format;
-
-            if (_self.currentType == "whatsOn") {
-                _self.initWhatsOn(_self.ajaxRevisedArray[0][_self.initDateObj.format]);
-            }
-
-        } else {
-            var _end = moment().add('months', 1).date(0);
-            var _diff = _end.diff(_self.initDateObj.obj, 'days');
-            var _counter = 1;
-
-            for (_i = 1; _i < _diff + 1; _i++) {
-                var _tempDate = _self.initDateObj.obj.clone().add(_i, 'days');
-                var _string = _self.returnDateFormat([_tempDate.date(), _tempDate.month(), _tempDate.year()]);
-                var _length2 = _self.ajaxRevisedArray[0][_string].length;
-
-                if (_length2 > 0) {
-                    if (_self.currentType == "whatsOn") {
-                        _self.initWhatsOn(_self.ajaxRevisedArray[0][_string]);
-                    }
-
-                    $('.weekdayItem[data-date="' + _string + '"]', _self.target).addClass('selected');
-                    _self.selectedDate = _string;
-
-                    break;
-
-                } else {
-                    _counter++;
-                }
-            }
-
-            if (_counter == _diff) {
-                //console.log("display no result");
-            }
-        }
-        _self.isInitCall = false;
-    }
-
-    function dateFormatConvert(pStartDay, pEndDay) {
-        var _sDay = pStartDay.date();
-        var _sMonth = _self.languagePack[0][_self.language]["monthSf"][pStartDay.month()];
-        var _sYear = pStartDay.year();
-
-        var _startDayString = _sDay + ' ' + _sMonth + ' ' + _sYear;
-
-        if (pStartDay._i == pEndDay._i) {
-            return _startDayString;
-        } else {
-            var _eDay = pEndDay.date();
-            var _eMonth = _self.languagePack[0][_self.language]["monthSf"][pEndDay.month()];
-            var _eYear = pEndDay.year();
-
-            var _endDayString = _eDay + ' ' + _eMonth + ' ' + _eYear;
-
-            return _startDayString + ' - ' + _endDayStringcover
-        }
-    }
 };
 
 /********** What's On **********/
@@ -573,10 +508,10 @@ sk_datePicker.prototype.loadDisplayContentWO = function(pArray) {
 
     _htmlContent += '</div>';
     _htmlContent += '<div class="mainMessage whatsOnAniIn">';
-    _htmlContent += '	<p class="text-content">';
-    _htmlContent += '		<span class="fc-text-' + pArray.tag[0] + '">' + pArray.firstChar + '</span>' + pArray.updatedMessage;
-    _htmlContent += '		<a href="' + pArray.link + '" class="readmore"> more&raquo;</a>';
-    _htmlContent += '	</p>';
+    _htmlContent += '   <p class="text-content">';
+    _htmlContent += '       <span class="fc-text-' + pArray.tag[0] + '">' + pArray.firstChar + '</span>' + pArray.updatedMessage;
+    _htmlContent += '       <a href="' + pArray.link + '" class="readmore"> more&raquo;</a>';
+    _htmlContent += '   </p>';
     _htmlContent += '</div>';
 
     $('.displayContent', _localTarget).append(_htmlContent);
@@ -584,12 +519,6 @@ sk_datePicker.prototype.loadDisplayContentWO = function(pArray) {
 
     colorSetting();
 };
-
-
-
-
-
-
 
 sk_datePicker.prototype.createTable = function() {
     var _self = this;
@@ -621,23 +550,23 @@ sk_datePicker.prototype.createTable = function() {
 
         for (_i = 0; _i < 7; _i++) {
             if (pClass == "weekdayRow") {
-                _html += '	<td>';
-                //_html += '		<span class="outerCellFrame">';
-                _html += '			<span class="weekdayItem">';
-                _html += '				<span class="dateText"><span class="item">' + pArray[_i] + '</span></span>';
-                _html += '			</span>';
-                //_html += '		</span>';
-                _html += '	</td>';
+                _html += '  <td>';
+                //_html += '        <span class="outerCellFrame">';
+                _html += '          <span class="weekdayItem">';
+                _html += '              <span class="dateText"><span class="item">' + pArray[_i] + '</span></span>';
+                _html += '          </span>';
+                //_html += '        </span>';
+                _html += '  </td>';
             } else {
-                _html += '	<td data-cellnum="' + _i + '">';
-                //_html += '		<span class="outerCellFrame">';
-                _html += '			<a href="javascript:void(0);" class="weekdayItem">';
-                _html += '				<span class="dateText"><span class="item"></span></span>';
-                // _html += '				<span class="firstDayIco"></span>';
-                // _html += '				<span class="cover"></span>';
-                _html += '			</a>';
-                //_html += '		</span>';
-                _html += '	</td>';
+                _html += '  <td data-cellnum="' + _i + '">';
+                //_html += '        <span class="outerCellFrame">';
+                _html += '          <a href="javascript:void(0);" class="weekdayItem">';
+                _html += '              <span class="dateText"><span class="item"></span></span>';
+                // _html += '               <span class="firstDayIco"></span>';
+                // _html += '               <span class="cover"></span>';
+                _html += '          </a>';
+                //_html += '        </span>';
+                _html += '  </td>';
             }
         }
 
@@ -653,8 +582,8 @@ sk_datePicker.prototype.destroy = function() {
         _self.destroyDisplayContentWO();
     }
 
-    _self.yearArrowLeft.off('click');
-    _self.yearArrowRight.off('click');
+    _self.arrowPrevious.off('click');
+    _self.arrowNext.off('click');
     _self.monthArrowLeft.off('click');
     _self.monthArrowRight.off('click');
 
@@ -683,3 +612,5 @@ sk_datePicker.prototype.destroy = function() {
 
     //console.log(_self.currentMonthArray, _self.sk_datepickTable);
 };
+
+//# sourceMappingURL=../maps/skon_datepicker.min.map

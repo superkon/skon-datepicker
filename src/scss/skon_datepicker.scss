@@ -109,6 +109,7 @@ table.sk_datepickTable {
 			display: block;
 			width: 100%;
 			text-decoration: none;
+			cursor: not-allowed;
 
 			.dateText {
 				position: relative;
@@ -137,6 +138,15 @@ table.sk_datepickTable {
 
 			&.current {
 				background-color: $colorGrey_1;
+
+				.eventBorder {
+					border: 1px solid $colorGrey_2;
+				}
+			}
+
+			&.wEvent {
+				background-color: #CC0;
+				cursor: pointer;
 
 				.eventBorder {
 					border: 1px solid $colorGrey_2;
@@ -214,5 +224,33 @@ table.sk_datepickTable {
 				bottom: 4px;
 			}
 		}
+	}
+}
+
+.displayDateText
+{
+	position: relative;
+	background-color: #CC0;
+	padding: 5px;
+
+	.timeItem
+	{
+		position: relative;
+		@include inlineBlock;
+		text-decoration: none;
+		width: 50%;
+
+		.text
+		{
+			position: relative;
+			display: block;
+			text-align: center;
+			line-height: 2em;
+			background-color: #000;
+			color: #FFF;	
+			margin: 5px;
+		}
+
+		
 	}
 }
