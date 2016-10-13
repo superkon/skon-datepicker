@@ -1,0 +1,218 @@
+// ******************************
+// Config.
+// ******************************
+$colorWhite: #FFFFFF;
+$colorBlack: #000000;
+$colorGrey_1: #CCCCCC;
+$colorGrey_2: #666666;
+$duration: 0.25s;
+$td_width: 100/7*1%; // ******************************
+// Maxin.
+// ******************************
+@mixin inlineBlock {
+	display: inline-block;
+	*display: inline;
+	*zoom: 1;
+}
+// ******************************
+// sk_style
+// ******************************
+
+.sk_selectorWrapper {
+	position: relative;
+	width: 100%;
+
+	&.s1 {
+		.selectorItem {
+			position: relative;
+			text-align: center;
+			padding: 10px 0;
+
+			&.year {
+				.datepickerArrow {
+					&.left {
+						left: 15px;
+					}
+
+					&.right {
+						right: 15px;
+					}
+				}
+			}
+
+			.datepickerArrow {
+				position: absolute;
+				width: 20px;
+				height: 20px;
+				top: 50%;
+				margin-top: -10px;
+				text-align: center;
+				background-color: #CC0;
+
+				[class*="icon"] {
+					position: relative;
+					@include inlineBlock;
+					vertical-align: middle;
+					font-size: 12px;
+					color: $colorWhite;
+				}
+
+				&.left {
+					left: 10px;
+				}
+
+				&.right {
+					right: 10px;
+				}
+			}
+
+			.displayValue {
+				color: $colorBlack;
+			}
+		}
+	}
+}
+
+table.sk_datepickTable {
+	position: relative;
+	width: 100%;
+
+	tr.weekdayRow {
+		td {
+			width: $td_width;
+		}
+	}
+
+	td {
+		border: 1px solid $colorBlack;
+		text-align: center;
+		vertical-align: middle;
+
+		.color {
+			position: relative;
+			display: block;
+			background-color: $colorBlack;
+			height: 100%;
+		}
+
+		tr.dateRow {
+			display: table-row;
+
+			.hide {
+				display: none;
+			}
+		}
+
+		.dateItem,
+		.weekdayItem {
+			position: relative;
+			display: block;
+			width: 100%;
+			text-decoration: none;
+
+			.dateText {
+				position: relative;
+				display: block;
+
+				.item {
+					position: relative;
+					line-height: 2em;
+				}
+			}
+			// position: absolute;
+			// display: block;
+			// top: 0;
+			// left: 0;
+			// bottom: 0;
+			// right: 0;
+			// cursor: default;
+			// transition: all $duration;
+			&.withEvent {
+				cursor: pointer;
+
+				.item {
+					color: $colorWhite;
+				}
+			}
+
+			&.current {
+				background-color: $colorGrey_1;
+
+				.eventBorder {
+					border: 1px solid $colorGrey_2;
+				}
+			}
+
+			&.selected {
+				background-color: $colorGrey_1;
+
+				.eventBorder {
+					border: 1px solid $colorWhite;
+				}
+			}
+
+			.firstDayIco {
+				display: none;
+			}
+
+			&.firstDay {
+				.firstDayIco {
+					position: absolute;
+					display: block;
+					width: 4px;
+					height: 4px;
+					left: 50%;
+					margin-left: -2px;
+					bottom: 8px;
+					background-color: $colorWhite;
+					border-radius: 50%;
+				}
+
+				&.selected {
+					.firstDayIco {
+						background-color: $colorWhite;
+					}
+				}
+			}
+
+			&.withEvent:hover {
+				background-color: $colorGrey_1;
+
+				.eventBorder {
+					border: 1px solid $colorWhite;
+				}
+
+				.firstDayIco {
+					background-color: $colorWhite;
+				}
+			}
+
+			.cover {
+				position: absolute;
+				display: block;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+				background-color: $colorGrey_1;
+			}
+
+			.item {
+				position: relative;
+				display: block;
+				color: $colorGrey_2;
+			}
+
+			.eventBorder {
+				position: absolute;
+				box-sizing: border-box;
+				display: block;
+				border: 1px solid $colorGrey_1;
+				top: 4px;
+				left: 4px;
+				right: 4px;
+				bottom: 4px;
+			}
+		}
+	}
+}

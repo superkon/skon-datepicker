@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>skon_datepicker v1.0.0</title>
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../dev/css/reset.min.css">
+    <link rel="stylesheet" href="../dev/css/skon_datepicker.min.css">
+    <!-- endinject -->
+
+    <style media="screen">
+        .datepickerContainer {
+            position: relative;
+            max-width: 500px;
+            margin: 0px auto;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="datepickerContainer">
+        <div id="datepicker_whatson"></div>
+    </div>
+
+    <!-- inject:js -->
+    <script src="../dev/js/jquery.min.js"></script>
+    <script src="../dev/js/moment.js"></script>
+    <script src="../dev/js/skon_datepicker.min.js"></script>
+    <!-- endinject -->
+
+    <script type="text/javascript">
+        $(document).ready(init_fn);
+
+        var whatsonDatepicker = null;
+
+        function init_fn(pEvent) {
+
+            whatsonDatepicker = new sk_datePicker($('#datepicker_whatson'), {
+                onChangeMonth: function(pTarget) {
+
+
+                    var _self = pTarget;
+
+                    // $.ajax({
+                    //     url: '../data/datepick-event.json',
+                    //     type: 'GET',
+                    //     data: {
+                    //         year: whatsonDatepicker.currentYear,
+                    //         month: whatsonDatepicker.currentMonth
+                    //     },
+                    //     dataType: 'json',
+                    //     success: function(res) {
+                    //         if (res.status == 1) {
+                    //             var _type = "whatsOn";
+                    //             _self.postAjaxContent(res.data, _type);
+                    //         }
+                    //     }
+                    // });
+
+                },
+                onChangeDate: function(pTarget) {
+                    //console.log("change date");
+                }
+            });
+
+        }
+    </script>
+
+</body>
+
+</html>
